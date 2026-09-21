@@ -1,0 +1,304 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>My Student Planner</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+<div class="auth-screen" id="authScreen">
+  <div class="modal" style="width:320px;">
+    <h3 id="authTitle">Log In</h3>
+    <form id="authForm">
+      <label>Email</label>
+      <input type="email" id="authEmail" required>
+
+      <label>Password</label>
+      <input type="password" id="authPassword" required>
+
+      <p id="authError" style="color:#e8a0a0; font-size:12px; margin-top:8px; display:none;"></p>
+
+      <div class="modal-buttons">
+        <button type="submit" class="btn btn-primary" style="flex:1;" id="authSubmitBtn">Log In</button>
+      </div>
+    </form>
+    <p style="text-align:center; font-size:12px; color:#8a857c; margin-top:14px;">
+      <span id="authToggleText">Don't have an account?</span>
+      <a href="#" id="authToggleLink" style="color:#c9a0ac;">Sign up</a>
+    </p>
+  </div>
+</div>
+
+  <header class="topbar">
+    <span class="app-title">My Planner</span>
+    <div class="topbar-icons">
+      <button class="icon-btn" title="Settings">⚙</button>
+      <span class="avatar" id="logoutBtn" style="cursor:pointer;" title="Click to log out">JG</span>
+    </div>
+  </header>
+
+  <main>
+    <section class="quick-access">
+      <button class="btn btn-primary" id="newAssignmentBtn">+ Assignment</button>
+      <button class="btn btn-secondary" id="newExamBtn">+ Exam</button>
+      <button class="btn btn-secondary" id="newNotesBtn">+ Notes</button>
+    </section>
+
+<div class="dashboard-columns">
+    <div class="col-left">
+    <section>
+      <div class="section-header">
+        <span class="section-label">COURSES</span>
+      </div>
+      <div class="course-grid" id="courseGrid">
+        <!-- Course cards will be inserted here by app.js once Prisma is connected -->
+        <div class="course-card add-course">+ Add course</div>
+      </div>
+    </section>
+
+    <section>
+      <div class="section-header">
+        <span class="section-label">TIMETABLE</span>
+        <button class="btn btn-secondary" id="addClassBtn" style="flex:none; padding:6px 12px;">+ Add class</button>
+      </div>
+      <div id="timetableGrid" style="margin-bottom:32px;"></div>
+    </section>
+
+<section>
+  <div class="section-header">
+    <span class="section-label">STUDY GROUPS</span>
+    <button class="btn btn-secondary" id="createGroupBtn" style="flex:none; padding:6px 12px;">+ Create</button>
+  </div>
+  <input type="text" id="groupSearchInput" placeholder="Search by name or course..." style="width:100%; background:#1a1a1a; border:0.5px solid #2a2a2a; border-radius:7px; padding:8px 10px; color:#f2f0ea; font-size:13px; margin-bottom:10px;">
+  <div id="studyGroupsList" style="display:flex; flex-direction:column; gap:8px;"></div>
+</section>
+
+<section>
+  <div class="section-header">
+    <span class="section-label">NOTES</span>
+  </div>
+  <div id="notesList" style="display:flex; flex-direction:column; gap:8px;"></div>
+</section>
+</div>
+
+ <div class="col-right">
+<div class="col-right">
+  <section>
+    <div class="section-header">
+      <span class="section-label">POMODORO</span>
+    </div>
+    <div class="pomodoro-box">
+      <p id="pomodoroMode">Focus</p>
+      <p id="pomodoroTime">25:00</p>
+      <div class="pomodoro-buttons">
+        <button class="btn btn-primary" id="pomodoroStartBtn">Start</button>
+        <button class="btn btn-secondary" id="pomodoroResetBtn">Reset</button>
+      </div>
+    </div>
+  </section>
+
+    <section>
+      <div class="section-header">
+        <span class="section-label">CALENDAR</span>
+        <div style="display:flex; align-items:center; gap:10px;">
+          <button class="icon-action" id="prevMonthBtn">‹</button>
+          <span id="calendarMonthLabel" style="font-size:12px; color:#d8d4cc;"></span>
+          <button class="icon-action" id="nextMonthBtn">›</button>
+        </div>
+      </div>
+   <div id="workloadHeatmap" style="margin-bottom:16px;"></div>
+  <div id="calendarGrid" style="margin-bottom:32px;"></div>
+ <div id="calendarDayDetails"></div>
+    </section>
+
+    <section>
+      <div class="section-header">
+  <span class="section-label">ASSIGNMENTS</span>
+  <button class="btn btn-secondary" id="studyPlanBtn" style="flex:none; padding:6px 12px;">📋 Study Plan</button>
+  <button class="btn btn-secondary" id="revisionPlanBtn" style="flex:none; padding:6px 12px;">🎯 Revision Plan</button>
+</div>
+      <div class="assignment-list" id="assignmentList">
+        <!-- Assignment items will be inserted here by app.js -->
+      </div>
+     </div>
+    </section>
+    </main>
+
+  <div class="modal-overlay" id="assignmentModal">
+    <div class="modal">
+  <h3 id="modalTitle">New Assignment</h3>
+      <form id="assignmentForm">
+        <label>Title</label>
+        <input type="text" id="titleInput" required>
+
+        <label>Course</label>
+        <select id="courseInput" required></select>
+
+        <label>Priority</label>
+        <select id="priorityInput">
+          <option value="high">High</option>
+          <option value="medium">Medium</option>
+          <option value="low">Low</option>
+        </select>
+
+<label>Estimated hours (optional)</label>
+<input type="number" id="estimatedHoursInput" min="0.5" step="0.5" placeholder="Leave blank to use a default">
+
+        <label id="deadlineLabel">Deadline</label>
+        <input type="date" id="deadlineInput" required>
+
+	<div id="examFieldsWrapper" style="display:none;">
+  <label>Exam time</label>
+  <input type="time" id="examTimeInput">
+
+  <label>Venue</label>
+  <input type="text" id="examVenueInput" placeholder="e.g. Main Hall">
+</div>
+
+        <div class="modal-buttons">
+          <button type="button" class="btn btn-secondary" id="cancelBtn">Cancel</button>
+          <button type="submit" class="btn btn-primary">Add</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <div class="modal-overlay" id="courseModal">
+    <div class="modal">
+      <h3 id="courseModalTitle">New Course</h3>
+      <form id="courseForm">
+        <label>Course name</label>
+        <input type="text" id="courseNameInput" required>
+
+        <label>Cover color</label>
+        <input type="color" id="courseColorInput" value="#4a2e38">
+
+        <div class="modal-buttons">
+          <button type="button" class="btn btn-secondary" id="cancelCourseBtn">Cancel</button>
+          <button type="submit" class="btn btn-primary" id="courseSubmitBtn">Add</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <div class="modal-overlay" id="classModal">
+    <div class="modal">
+      <h3>Add Class</h3>
+      <form id="classForm">
+        <label>Course</label>
+        <select id="classCourseInput" required></select>
+
+        <label>Day</label>
+        <select id="classDayInput" required>
+  	  <option value="Mon">Monday</option>
+  	  <option value="Tue">Tuesday</option>
+  	  <option value="Wed">Wednesday</option>
+ 	  <option value="Thu">Thursday</option>
+ 	  <option value="Fri">Friday</option>
+	  <option value="Sat">Saturday</option>
+	  <option value="Sun">Sunday</option>
+	</select>
+
+        <label>Start time</label>
+        <input type="time" id="classStartInput" required>
+
+        <label>End time</label>
+        <input type="time" id="classEndInput" required>
+
+        <div class="modal-buttons">
+          <button type="button" class="btn btn-secondary" id="cancelClassBtn">Cancel</button>
+          <button type="submit" class="btn btn-primary">Add</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+<div class="modal-overlay" id="groupModal">
+  <div class="modal">
+    <h3>Create Study Group</h3>
+    <form id="groupForm">
+      <label>Group name</label>
+      <input type="text" id="groupNameInput" required>
+
+      <label>Course</label>
+      <input type="text" id="groupCourseInput" placeholder="e.g. Data Structures" required>
+
+      <div class="modal-buttons">
+        <button type="button" class="btn btn-secondary" id="cancelGroupBtn">Cancel</button>
+        <button type="submit" class="btn btn-primary">Create</button>
+      </div>
+    </form>
+  </div>
+</div>
+
+<div class="modal-overlay" id="noteModal">
+  <div class="modal">
+    <h3 id="noteModalTitle">New Note</h3>
+    <form id="noteForm">
+      <label>Title</label>
+      <input type="text" id="noteTitleInput" required>
+
+      <label>Course (optional)</label>
+      <select id="noteCourseInput">
+        <option value="">— General —</option>
+      </select>
+
+      <label>Content</label>
+   <textarea id="noteContentInput" rows="10" style="width:100%; background:#1a1a1a; border:0.5px solid #2a2a2a; border-radius:7px; padding:8px 10px; color:#f2f0ea; font-size:13px; font-family:inherit; resize:vertical; min-height:120px;" required></textarea>
+      
+<div class="modal-buttons">
+  <button type="button" class="btn btn-secondary" id="cancelNoteBtn">Cancel</button>
+  <button type="button" class="btn btn-secondary" id="deleteNoteBtn" style="display:none; color:#e8a0a0;">Delete</button>
+  <button type="submit" class="btn btn-primary" id="noteSubmitBtn">Add</button>
+</div>
+    </form>
+  </div>
+</div>
+
+<div class="modal-overlay" id="studyPlanModal">
+  <div class="modal" style="width:400px; max-height:80vh; overflow-y:auto;">
+    <h3>Study Plan — Next 7 Days</h3>
+    <div id="studyPlanContent"></div>
+    <div class="modal-buttons">
+      <button type="button" class="btn btn-secondary" id="closeStudyPlanBtn" style="flex:1;">Close</button>
+    </div>
+  </div>
+</div>
+
+<div class="modal-overlay" id="revisionModal">
+  <div class="modal" style="width:400px; max-height:80vh; overflow-y:auto;">
+    <h3>Revision Plan</h3>
+
+    <div id="revisionSetup">
+      <p style="color:#8a857c; font-size:12px; margin-bottom:10px;">Which exam(s) are you preparing for?</p>
+      <div id="examChecklist"></div>
+
+      <div id="graspSection" style="display:none;">
+        <p style="color:#8a857c; font-size:12px; margin:14px 0 10px;">Rate how well you know each (1 = barely, 5 = confident):</p>
+        <div id="graspInputs"></div>
+
+        <label>Study method</label>
+        <select id="methodInput">
+          <option value="pomodoro">Pomodoro (25/5 blocks)</option>
+          <option value="spaced">Spaced repetition</option>
+          <option value="block">Block scheduling (long sessions)</option>
+        </select>
+      </div>
+
+      <div class="modal-buttons">
+        <button type="button" class="btn btn-secondary" id="cancelRevisionBtn">Cancel</button>
+        <button type="button" class="btn btn-primary" id="generateRevisionBtn">Generate</button>
+      </div>
+    </div>
+
+    <div id="revisionResults" style="display:none;"></div>
+  </div>
+</div>
+
+  <div class="modal-overlay" id="assignmentModal">
+
+  <script src="app.js"></script>
+</body>
+</html>

@@ -1,0 +1,86 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+  output   = "../generated/prisma"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
+}
+
+
+
+model Course {
+  id          Int          @id @default(autoincrement())
+  name        String
+  coverType   String
+  coverValue  String
+  assignments Assignment[]
+  classSlots  ClassSlot[]
+  notes       Note[]
+  user        User         @relation(fields: [userId], references: [id])
+  userId      Int
+  createdAt   DateTime     @default(now())
+}
+
+model Assignment {
+  id             Int      @id @default(autoincrement())
+  title          String
+  type           String
+  priority       String
+  status         String   @default("not started")
+  deadline       DateTime
+  estimatedHours Float?
+  examTime       String?
+  examVenue      String?
+  course         Course   @relation(fields: [courseId], references: [id])
+  courseId       Int
+  createdAt      DateTime @default(now())
+}
+
+model ClassSlot {
+  id        Int    @id @default(autoincrement())
+  dayOfWeek String // "Mon" | "Tue" | "Wed" | "Thu" | "Fri"
+  startTime String // "08:00"
+  endTime   String // "11:00"
+  course    Course @relation(fields: [courseId], references: [id])
+  courseId  Int
+}
+
+model Note {
+  id        Int      @id @default(autoincrement())
+  title     String
+  content   String
+  course    Course?  @relation(fields: [courseId], references: [id])
+  courseId  Int?
+  createdAt DateTime @default(now())
+}
+
+model User {
+  id        Int      @id @default(autoincrement())
+  email     String   @unique
+  password  String
+  courses   Course[]
+  createdAt DateTime @default(now())
+}
+
+model StudyGroup {
+  id         Int                @id @default(autoincrement())
+  name       String
+  courseName String
+  jitsiSlug  String
+  createdBy  Int
+  createdAt  DateTime           @default(now())
+  members    StudyGroupMember[]
+}
+
+model StudyGroupMember {
+  id        Int        @id @default(autoincrement())
+  group     StudyGroup @relation(fields: [groupId], references: [id])
+  groupId   Int
+  userId    Int
+  joinedAt  DateTime   @default(now())
+}
