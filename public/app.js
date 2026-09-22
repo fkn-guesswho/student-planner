@@ -605,6 +605,11 @@ document.getElementById("authToggleLink").addEventListener("click", (e) => {
   document.getElementById("authToggleText").textContent = authMode === "login" ? "Don't have an account?" : "Already have an account?"
   document.getElementById("authToggleLink").textContent = authMode === "login" ? "Sign up" : "Log in"
   document.getElementById("authError").style.display = "none"
+
+  const showUsername = authMode === "signup"
+  document.getElementById("usernameLabel").style.display = showUsername ? "block" : "none"
+  document.getElementById("authUsername").style.display = showUsername ? "block" : "none"
+  document.getElementById("authUsername").required = showUsername
 })
 
 document.getElementById("authForm").addEventListener("submit", async (e) => {
@@ -612,12 +617,13 @@ document.getElementById("authForm").addEventListener("submit", async (e) => {
 
   const email = document.getElementById("authEmail").value
   const password = document.getElementById("authPassword").value
+  const username = document.getElementById("authUsername").value
   const endpoint = authMode === "login" ? "/api/login" : "/api/signup"
 
   const response = await fetch(endpoint, {
     method: "POST",
     headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({ email, password }),
+    body: JSON.stringify({ email, password, username }),
   })
   const result = await response.json()
 
@@ -649,6 +655,8 @@ async function checkAuth() {
 
   if (user) {
     currentUserId = user.id
+    document.getElementById("logoutBtn").textContent = user.username.slice(0, 2).toUpperCase()
+    document.getElementById("logoutBtn").title = `${user.username} — click to log out`
     hideAuthScreen()
     initApp()
   } else {

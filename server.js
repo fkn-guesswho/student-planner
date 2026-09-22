@@ -2,13 +2,23 @@ const express = require('express')
 const { PrismaClient } = require('./generated/prisma')
 const session = require('express-session')
 const bcrypt = require('bcrypt')
+const pgSession = require('connect-pg-simple')(session)
+const { Pool } = require('pg')
 
 const app = express()
 const prisma = new PrismaClient()
 const PORT = 3000
 
 app.use(express.json())
+const pgPool = new Pool({
+  connectionString: process.env.DATABASE_URL,
+})
+
 app.use(session({
+  store: new pgSession({
+    pool: pgPool,
+    createTableIfMissing: true, // automatically sets up the sessions table in Postgres
+  }),
   secret: 'change-this-later-to-something-random',
   resave: false,
   saveUninitialized: false,
@@ -26,15 +36,21 @@ function requireLogin(req, res, next) {
 // ---- Auth ----
 
 app.post('/api/signup', async (req, res) => {
-  const { email, password } = req.body
-  const existing = await prisma.user.findUnique({ where: { email } })
-  if (existing) {
+  const { email, password, username } = req.body
+
+  const existingEmail = await prisma.user.findUnique({ where: { email } })
+  if (existingEmail) {
     return res.status(400).json({ error: 'An account with that email already exists.' })
   }
+  const existingUsername = await prisma.user.findUnique({ where: { username } })
+  if (existingUsername) {
+    return res.status(400).json({ error: 'That username is already taken.' })
+  }
+
   const hashedPassword = await bcrypt.hash(password, 10)
-  const user = await prisma.user.create({ data: { email, password: hashedPassword } })
+  const user = await prisma.user.create({ data: { email, username, password: hashedPassword } })
   req.session.userId = user.id
-  res.json({ id: user.id, email: user.email })
+  res.json({ id: user.id, email: user.email, username: user.username })
 })
 
 app.post('/api/login', async (req, res) => {
@@ -54,7 +70,7 @@ app.post('/api/logout', (req, res) => {
 app.get('/api/me', async (req, res) => {
   if (!req.session.userId) return res.json(null)
   const user = await prisma.user.findUnique({ where: { id: req.session.userId } })
-  res.json(user ? { id: user.id, email: user.email } : null)
+  res.json(user ? { id: user.id, email: user.email, username: user.username } : null)
 })
 
 // ---- Courses ----
@@ -406,7 +422,7 @@ app.post('/api/revision-plan', requireLogin, async (req, res) => {
   })
 
   const totalWeight = tasks.reduce((sum, t) => sum + t.weight, 0)
-  const totalCapacity = days.reduce((sum, d) => sum + d.freeHours, 0)
+ const totalCapacity = days.filter(d => formatDateForPlan(d.date) < formatDateForPlan(latestExamDate)).reduce((sum, d) => sum + d.freeHours, 0)
   tasks.forEach(t => {
     t.hoursNeeded = Math.round((t.weight / totalWeight) * totalCapacity * 10) / 10
   })
@@ -417,7 +433,7 @@ app.post('/api/revision-plan', requireLogin, async (req, res) => {
     let remaining = task.hoursNeeded
     for (const day of days) {
       if (remaining <= 0) break
-      if (day.date > task.examDeadline) break
+      if (formatDateForPlan(day.date) >= formatDateForPlan(task.examDeadline)) break
       if (day.freeHours <= 0) continue
       const allocate = Math.min(day.freeHours, remaining)
       day.allocations.push({
@@ -445,6 +461,12 @@ app.post('/api/revision-plan', requireLogin, async (req, res) => {
   })
 })
 
-app.listen(PORT, () => {
-  console.log(`Server running at http://localhost:${PORT}`)
-})
+if (require.main === module) {
+  // Only start a traditional listening server when run directly (like on your laptop).
+  // On Vercel, this file gets imported as a function instead, so this block is skipped.
+  app.listen(PORT, () => {
+    console.log(`Server running at http://localhost:${PORT}`)
+  })
+}
+
+module.exports = app

@@ -12,10 +12,12 @@
   <div class="modal" style="width:320px;">
     <h3 id="authTitle">Log In</h3>
     <form id="authForm">
-      <label>Email</label>
+	<label id="usernameLabel" for="authUsername" style="display:none;">Username</label>
+	<input type="text" id="authUsername" style="display:none;">
+      <label for="authEmail">Email</label>
       <input type="email" id="authEmail" required>
 
-      <label>Password</label>
+      <label for="authPassword">Password</label>
       <input type="password" id="authPassword" required>
 
       <p id="authError" style="color:#e8a0a0; font-size:12px; margin-top:8px; display:none;"></p>
@@ -130,30 +132,30 @@
     <div class="modal">
   <h3 id="modalTitle">New Assignment</h3>
       <form id="assignmentForm">
-        <label>Title</label>
+        <label for="titleInput">Title</label>
         <input type="text" id="titleInput" required>
 
-        <label>Course</label>
+        <label for="courseInput">Course</label>
         <select id="courseInput" required></select>
 
-        <label>Priority</label>
+        <label for="priorityInput">Priority</label>
         <select id="priorityInput">
           <option value="high">High</option>
           <option value="medium">Medium</option>
           <option value="low">Low</option>
         </select>
 
-<label>Estimated hours (optional)</label>
+<label for="estimatedHoursInput">Estimated hours (optional)</label>
 <input type="number" id="estimatedHoursInput" min="0.5" step="0.5" placeholder="Leave blank to use a default">
 
-        <label id="deadlineLabel">Deadline</label>
+        <label id="deadlineLabel" for="deadlineInput">Deadline</label>
         <input type="date" id="deadlineInput" required>
 
 	<div id="examFieldsWrapper" style="display:none;">
-  <label>Exam time</label>
+    <label for="examTimeInput">Exam time</label>
   <input type="time" id="examTimeInput">
 
-  <label>Venue</label>
+    <label for="examVenueInput">Venue</label>
   <input type="text" id="examVenueInput" placeholder="e.g. Main Hall">
 </div>
 
@@ -169,10 +171,10 @@
     <div class="modal">
       <h3 id="courseModalTitle">New Course</h3>
       <form id="courseForm">
-        <label>Course name</label>
+        <label for="courseNameInput">Course name</label>
         <input type="text" id="courseNameInput" required>
 
-        <label>Cover color</label>
+        <label for="courseColorInput">Cover color</label>
         <input type="color" id="courseColorInput" value="#4a2e38">
 
         <div class="modal-buttons">
@@ -187,10 +189,10 @@
     <div class="modal">
       <h3>Add Class</h3>
       <form id="classForm">
-        <label>Course</label>
+        <label for="classCourseInput">Course</label>
         <select id="classCourseInput" required></select>
 
-        <label>Day</label>
+        <label for="classDayInput">Day</label>
         <select id="classDayInput" required>
   	  <option value="Mon">Monday</option>
   	  <option value="Tue">Tuesday</option>
@@ -201,10 +203,10 @@
 	  <option value="Sun">Sunday</option>
 	</select>
 
-        <label>Start time</label>
+        <label for="classStartInput">Start time</label>
         <input type="time" id="classStartInput" required>
 
-        <label>End time</label>
+        <label for="classEndInput">End time</label>
         <input type="time" id="classEndInput" required>
 
         <div class="modal-buttons">
@@ -219,10 +221,10 @@
   <div class="modal">
     <h3>Create Study Group</h3>
     <form id="groupForm">
-      <label>Group name</label>
+      <label for="groupNameInput">Group name</label>
       <input type="text" id="groupNameInput" required>
 
-      <label>Course</label>
+      <label for="groupCourseInput">Course</label>
       <input type="text" id="groupCourseInput" placeholder="e.g. Data Structures" required>
 
       <div class="modal-buttons">
@@ -237,15 +239,15 @@
   <div class="modal">
     <h3 id="noteModalTitle">New Note</h3>
     <form id="noteForm">
-      <label>Title</label>
+      <label for="noteTitleInput">Title</label>
       <input type="text" id="noteTitleInput" required>
 
-      <label>Course (optional)</label>
+      <label for="noteCourseInput">Course (optional)</label>
       <select id="noteCourseInput">
         <option value="">— General —</option>
       </select>
 
-      <label>Content</label>
+      <label for="noteContentInput">Content</label>
    <textarea id="noteContentInput" rows="10" style="width:100%; background:#1a1a1a; border:0.5px solid #2a2a2a; border-radius:7px; padding:8px 10px; color:#f2f0ea; font-size:13px; font-family:inherit; resize:vertical; min-height:120px;" required></textarea>
       
 <div class="modal-buttons">
@@ -279,7 +281,7 @@
         <p style="color:#8a857c; font-size:12px; margin:14px 0 10px;">Rate how well you know each (1 = barely, 5 = confident):</p>
         <div id="graspInputs"></div>
 
-        <label>Study method</label>
+        <label for="methodInput">Study method</label>
         <select id="methodInput">
           <option value="pomodoro">Pomodoro (25/5 blocks)</option>
           <option value="spaced">Spaced repetition</option>
