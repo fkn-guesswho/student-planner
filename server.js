@@ -1,7 +1,7 @@
 const express = require('express')
 const { PrismaClient } = require('./generated/prisma')
 const session = require('express-session')
-const bcrypt = require('bcrypt')
+const bcrypt = require('bcryptjs')
 const pgSession = require('connect-pg-simple')(session)
 const { Pool } = require('pg')
 
