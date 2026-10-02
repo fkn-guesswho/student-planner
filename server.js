@@ -1,4 +1,5 @@
 const express = require('express')
+const path = require('path')
 const { PrismaClient } = require('./generated/prisma')
 const session = require('express-session')
 const bcrypt = require('bcryptjs')
@@ -24,6 +25,9 @@ app.use(session({
   saveUninitialized: false,
 }))
 app.use(express.static('public'))
+app.get('/', (req, res) => {
+  res.sendFile(path.join(__dirname, 'public', 'index.html'))
+})
 
 // A gatekeeper: blocks the request unless someone is logged in
 function requireLogin(req, res, next) {
