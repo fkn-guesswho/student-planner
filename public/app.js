@@ -652,6 +652,7 @@ function initApp() {
   renderCalendar()
   loadNotes()
   loadStudyGroups()
+  checkReminders()
 }
 
 // On page load, check if we're already logged in (e.g. refreshing the page)
@@ -1035,4 +1036,34 @@ function renderHeatmap() {
     heatmapStartDate.setDate(heatmapStartDate.getDate() + 7)
     renderHeatmap()
   })
+}
+
+
+// ---- Reminders ----
+async function checkReminders() {
+  const response = await fetch("/api/assignments")
+  const assignments = await response.json()
+
+  const today = formatLocalDate(new Date())
+  const tomorrow = formatLocalDate(new Date(Date.now() + 24 * 60 * 60 * 1000))
+
+  const dueToday = assignments.filter(a => a.status !== 'completed' && a.deadline.split("T")[0] === today)
+  const dueTomorrow = assignments.filter(a => a.status !== 'completed' && a.deadline.split("T")[0] === tomorrow)
+
+  const banner = document.getElementById("reminderBanner")
+
+  if (dueToday.length === 0 && dueTomorrow.length === 0) {
+    banner.innerHTML = ""
+    return
+  }
+
+  const parts = []
+  if (dueToday.length > 0) {
+    parts.push(`<strong>Due today:</strong> ${dueToday.map(a => a.title).join(", ")}`)
+  }
+  if (dueTomorrow.length > 0) {
+    parts.push(`<strong>Due tomorrow:</strong> ${dueTomorrow.map(a => a.title).join(", ")}`)
+  }
+
+  banner.innerHTML = `<div class="reminder-banner">⏰ ${parts.join(" &nbsp;|&nbsp; ")}</div>`
 }
