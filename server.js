@@ -103,6 +103,7 @@ app.patch('/api/courses/:id', requireLogin, async (req, res) => {
 
 app.delete('/api/courses/:id', requireLogin, async (req, res) => {
   await prisma.assignment.deleteMany({ where: { courseId: parseInt(req.params.id) } })
+  await prisma.classSlot.deleteMany({ where: { courseId: parseInt(req.params.id) } })
   await prisma.course.delete({ where: { id: parseInt(req.params.id) } })
   res.json({ success: true })
 })

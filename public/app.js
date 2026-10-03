@@ -70,20 +70,22 @@ document.getElementById("assignmentList").addEventListener("click", async (e) =>
   if (e.target.classList.contains("status-tag")) {
     const currentStatus = item.dataset.status
     const nextStatus = statusOrder[(statusOrder.indexOf(currentStatus) + 1) % statusOrder.length]
-    await fetch(`/api/assignments/${id}`, {
+        await fetch(`/api/assignments/${id}`, {
       method: "PATCH",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ status: nextStatus }),
     })
     loadAssignments()
+    renderCalendar()
     return
   }
 
   if (e.target.classList.contains("delete-btn")) {
     const confirmed = confirm("Delete this assignment? This can't be undone.")
     if (!confirmed) return
-    await fetch(`/api/assignments/${id}`, { method: "DELETE" })
+        await fetch(`/api/assignments/${id}`, { method: "DELETE" })
     loadAssignments()
+    renderCalendar()
     return
   }
 
@@ -165,10 +167,11 @@ document.getElementById("assignmentForm").addEventListener("submit", async (e) =
     })
   }
 
-  modal.classList.remove("open")
+    modal.classList.remove("open")
   document.getElementById("assignmentForm").reset()
   editingAssignmentId = null
   loadAssignments()
+  renderCalendar()
 })
 
 // ---- Course modal logic (Add / Edit / Delete) ----
@@ -237,10 +240,13 @@ document.getElementById("courseForm").addEventListener("submit", async (e) => {
     })
   }
 
-  courseModal.classList.remove("open")
+    courseModal.classList.remove("open")
   document.getElementById("courseForm").reset()
   editingCourseId = null
   loadCourses()
+  loadTimetable()
+  loadAssignments()
+  renderCalendar()
 })
 
 // ---- Timetable logic ----
