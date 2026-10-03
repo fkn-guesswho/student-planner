@@ -36,9 +36,10 @@
   <header class="topbar">
     <span class="app-title">My Planner</span>
     <div class="topbar-icons">
-      <button class="icon-btn" title="Settings">⚙</button>
-      <span class="avatar" id="logoutBtn" style="cursor:pointer;" title="Click to log out">JG</span>
-    </div>
+  <button class="icon-btn" id="musicBtn" title="Music">🎵</button>
+  <button class="icon-btn" title="Settings">⚙</button>
+  <span class="avatar" id="logoutBtn" style="cursor:pointer;" title="Click to log out">JG</span>
+</div>
   </header>
 
   <main>
@@ -302,6 +303,19 @@
 </div>
 
   <div class="modal-overlay" id="assignmentModal">
+
+<div class="modal-overlay" id="musicModal">
+  <div class="modal" style="width:340px;">
+    <h3>Your Playlist</h3>
+    <div id="spotifyEmbed" style="margin-bottom:12px;"></div>
+    <label for="spotifyUrlInput">Spotify link</label>
+    <input type="text" id="spotifyUrlInput" placeholder="Paste a playlist/track link...">
+    <div class="modal-buttons">
+      <button type="button" class="btn btn-secondary" id="closeMusicBtn" style="flex:1;">Close</button>
+      <button type="button" class="btn btn-primary" id="saveMusicBtn" style="flex:1;">Save</button>
+    </div>
+  </div>
+</div>
 
   <script src="app.js"></script>
 </body>

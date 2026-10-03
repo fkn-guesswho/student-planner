@@ -77,6 +77,7 @@ document.getElementById("assignmentList").addEventListener("click", async (e) =>
     })
     loadAssignments()
     renderCalendar()
+    checkReminders()
     return
   }
 
@@ -84,12 +85,13 @@ document.getElementById("assignmentList").addEventListener("click", async (e) =>
     const confirmed = confirm("Delete this assignment? This can't be undone.")
     if (!confirmed) return
         await fetch(`/api/assignments/${id}`, { method: "DELETE" })
-    loadAssignments()
+        loadAssignments()
     renderCalendar()
+    checkReminders()
     return
   }
 
-    if (e.target.classList.contains("edit-btn")) {
+  if (e.target.classList.contains("edit-btn")) {
     const response = await fetch("/api/assignments")
     const assignments = await response.json()
     const assignment = assignments.find(a => a.id === parseInt(id))
@@ -170,9 +172,12 @@ document.getElementById("assignmentForm").addEventListener("submit", async (e) =
     modal.classList.remove("open")
   document.getElementById("assignmentForm").reset()
   editingAssignmentId = null
-  loadAssignments()
+    loadAssignments()
   renderCalendar()
+  checkReminders()
 })
+
+// ---- Course modal logic (Add / Edit / Delete) ----
 
 // ---- Course modal logic (Add / Edit / Delete) ----
 const courseModal = document.getElementById("courseModal")
@@ -660,10 +665,11 @@ async function checkAuth() {
   const response = await fetch("/api/me")
   const user = await response.json()
 
-  if (user) {
+    if (user) {
     currentUserId = user.id
     document.getElementById("logoutBtn").textContent = user.username.slice(0, 2).toUpperCase()
     document.getElementById("logoutBtn").title = `${user.username} — click to log out`
+    currentSpotifyUrl = user.spotifyUrl
     hideAuthScreen()
     initApp()
   } else {
@@ -1067,3 +1073,41 @@ async function checkReminders() {
 
   banner.innerHTML = `<div class="reminder-banner">⏰ ${parts.join(" &nbsp;|&nbsp; ")}</div>`
 }
+
+
+
+// ---- Spotify embed ----
+let currentSpotifyUrl = null
+
+function renderSpotifyEmbed(url) {
+  const container = document.getElementById("spotifyEmbed")
+  if (!url) {
+    container.innerHTML = `<p style="color:#7a756c; font-size:11px;">No playlist linked yet.</p>`
+    return
+  }
+  const embedUrl = url.replace("open.spotify.com/", "open.spotify.com/embed/")
+  container.innerHTML = `<iframe src="${embedUrl}" width="100%" height="152" frameborder="0" allow="encrypted-media" style="border-radius:10px;"></iframe>`
+}
+
+const musicModal = document.getElementById("musicModal")
+
+document.getElementById("musicBtn").addEventListener("click", () => {
+  document.getElementById("spotifyUrlInput").value = currentSpotifyUrl || ""
+  renderSpotifyEmbed(currentSpotifyUrl)
+  musicModal.classList.add("open")
+})
+
+document.getElementById("closeMusicBtn").addEventListener("click", () => {
+  musicModal.classList.remove("open")
+})
+
+document.getElementById("saveMusicBtn").addEventListener("click", async () => {
+  const url = document.getElementById("spotifyUrlInput").value
+  await fetch("/api/me/spotify", {
+    method: "PATCH",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ spotifyUrl: url }),
+  })
+  currentSpotifyUrl = url
+  renderSpotifyEmbed(url)
+})

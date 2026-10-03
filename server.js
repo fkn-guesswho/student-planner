@@ -74,7 +74,7 @@ app.post('/api/logout', (req, res) => {
 app.get('/api/me', async (req, res) => {
   if (!req.session.userId) return res.json(null)
   const user = await prisma.user.findUnique({ where: { id: req.session.userId } })
-  res.json(user ? { id: user.id, email: user.email, username: user.username } : null)
+    res.json(user ? { id: user.id, email: user.email, username: user.username, spotifyUrl: user.spotifyUrl } : null)
 })
 
 // ---- Courses ----
@@ -464,6 +464,15 @@ app.post('/api/revision-plan', requireLogin, async (req, res) => {
     })),
     warnings,
   })
+})
+
+app.patch('/api/me/spotify', requireLogin, async (req, res) => {
+  const { spotifyUrl } = req.body
+  await prisma.user.update({
+    where: { id: req.session.userId },
+    data: { spotifyUrl },
+  })
+  res.json({ success: true })
 })
 
 if (require.main === module) {
